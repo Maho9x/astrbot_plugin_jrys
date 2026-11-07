@@ -1,4 +1,1 @@
-Pillow
-aiohttp
-aiofiles
-typing
+# 依赖均随 AstrBot 主程序提供：Pillow、aiohttp

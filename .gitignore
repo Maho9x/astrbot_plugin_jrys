@@ -1,4 +1,6 @@
-avatars/
-__pycache__/
-backgroundFolder/images/
+﻿__pycache__/
 *.pyc
+avatars/
+cards/
+.DS_Store
+Thumbs.db

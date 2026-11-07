@@ -1,175 +1,334 @@
 {
-    "img_width": {
-        "description": "生成图片的宽度",
-        "type": "int",
-        "hint": "设置生成图片的宽度，单位为像素。默认值为 1080。",
-        "default": 1080
+    "command": {
+        "description": "触发指令名",
+        "type": "string",
+        "hint": "默认 jrys；同时也支持「今日运势」「运势」两个别名。",
+        "default": "jrys"
     },
-    "img_height": {
-        "description": "生成图片的高度",
+    "Checkin_HintText": {
+        "description": "渲染中提示语",
+        "type": "string",
+        "hint": "发送指令后先回一句提示，再发图片。填 unset 表示不返回提示语。",
+        "default": "unset"
+    },
+    "daily_draw_limit": {
+        "description": "每日运势抽取次数限制",
         "type": "int",
-        "hint": "设置生成图片的高度，单位为像素。默认值为 1920。",
-        "default": 1920
+        "hint": "每位用户每天可抽取的次数，超出后只回复提示不再生成图片。填 0 表示不限制。",
+        "default": 1
     },
     "font_name": {
-        "description": "字体名称",
+        "description": "字体文件",
         "type": "string",
-        "hint": "设置生成图片中使用的字体名称。默认值为 '千图马克手写体.ttf'(请注意如果要改字体, 需要在插件的font里添加相应的字体)。",
-        "default": "千图马克手写体.ttf"
+        "hint": "填插件 font/ 目录下的字体文件名，例如 JINGNANBOBOHEI-BOLD-2.TTF。",
+        "default": "JINGNANBOBOHEI-BOLD-2.TTF"
     },
-    "avatar_cache_expiration": {
-        "description": "头像缓存过期时间",
-        "type": "int",
-        "hint": "设置头像缓存的过期时间，单位为秒。默认值为 86400 秒（即 24 小时）。",
-        "default": 86400
-    },
-    "avater_size":{
-        "description": "头像尺寸",
-        "type": "list",
-        "item": {
-            "type": "int",
-            "description": "头像的尺寸，单位为像素。"
-        },
-        "hint": "设置头像的尺寸大小，默认为[150, 150]",
-        "default": [150, 150]
-    },
-    "avater_position":{
-        "description": "头像位置",
-        "type": "list",
-        "item": {
-            "type": "int",
-            "description": "头像的位置，单位为像素。"
-        },
-        "hint": "设置头像的尺寸大小，默认为[60, 1350]",
-        "default": [60, 1350]
-    },
-    "date_y_position":{
-        "description": "日期Y轴位置",
-        "type": "int",
-        "hint": "设置日期在图片上Y轴的位置，默认为1300",
-        "default": 1300
-    },
-    "summary_y_position":{
-        "description": "运势总结Y轴位置",
-        "type": "int",
-        "hint": "设置总结在图片上Y轴的位置，默认为1400",
-        "default": 1400
-    },
-    "lucky_star_y_position":{
-        "description": "幸运星Y轴位置",
-        "type": "int",
-        "hint": "设置幸运星在图片上Y轴的位置，默认为1500 例如(★★★★★★☆)",
-        "default": 1500
-    },
-    "sign_text_y_position":{
-        "description": "运势简短文本Y轴位置",
-        "type": "int",
-        "hint": "设置签名在图片上Y轴的位置，默认为1600 例如:(谦恭做事，必得人和，大事成就，一定兴隆)",
-        "default": 1600
-    },
-    "unsign_text_y_position":{
-        "description": "运势详细文本Y轴位置",
-        "type": "int",
-        "hint": "设置无签名在图片上Y轴的位置，默认为1700 例如:(福寿拱照德望高，财子寿全又温和，慈祥好善可恭敬，富贵繁荣得惠泽。财源特佳金钱有餘，离出生之地而往大都市求谋必得更发达。)",
-        "default": 1700
-    },
-    "warning_text_y_position":{
-        "description": "注意事项文本Y轴位置",
-        "type": "int",
-        "hint": "设置注意事项在图片上Y轴的位置，默认为1850 例如:(此运势仅供娱乐参考，请勿过度解读。)",
-        "default": 1850
-    },
-    "jrys_keyword_enabled":{
-        "description": "启用关键字触发",
-        "type": "bool",
-        "hint": "启用后，用户可以通过发送特定的关键字例如 jrys 运势 今日运势关键字来触发插件功能。默认打开",
-        "default": true
-    },
-    "pre_cache_background_images":{
-        "description": "加载/重载时预缓存背景图",
-        "type": "bool",
-        "hint": "启用后，插件在加载/重载时会后台预下载 backgroundFolder/*.txt 中的所有图片 URL 到本地缓存目录 （需要 AstrBot >= 4.9.2）。",
-        "default": false
-    },
-    "pre_cache_concurrency":{
-        "description": "预缓存并发数",
-        "type": "int",
-        "hint": "预缓存背景图时的并发下载数量，建议 1-10，默认 3。",
-        "default": 3
-    },
-    "cleanup_background_downloads":{
-        "description": "清理非预缓存模式下的背景图下载",
-        "type": "bool",
-        "hint": "当未启用预缓存背景图时，插件每次运行按需下载的背景图在生成完成后将被删除，默认开启。如需将按需下载也持久化到本地缓存，请关闭该开关。",
-        "default": true
-    },
-    "holiday_rates_enabled":{
-        "description": "节假日运势高爆率",
-        "type": "bool",
-        "hint": "启用后，插件会根据中国大陆的节假日调整当天的运势，例如在春节期间会增加财运和人缘运势。默认开启。",
-        "default": true
-    },
-    "fixed_daily_fortune":{
-        "description": "每日固定运势",
-        "type": "bool",
-        "hint": "开启后，用户每天抽取的运势是固定的（哪怕重复发指令）。关闭后，每次触发都会随机生成全新运势。",
-        "default": true
-    },
-    "holidays": {
-        "description": "节假日日期列表",
-        "type": "list",
-        "hint": "配置需要触发高爆率的日期 (MM-DD 格式)。",
-        "default": ["01-01", "02-14", "05-01", "10-01", "12-25"]
-    },
-    "normal_rates": {
-        "description": "日常运势爆率权重",
+    "fortune_weights": {
+        "description": "运势抽取权重",
         "type": "object",
-        "hint": "设置平时的运势抽取概率权重。",
+        "hint": "键为档位值，值为权重，越大越容易抽到。全部为 0 时使用默认权重。",
         "items": {
-            "good": {
-                "description": "大吉 (>=84分) 权重",
+            "98": {
+                "description": "★★★★★★★ 大吉（98）",
                 "type": "int",
-                "default": 40,
-                "slider": {"min": 0, "max": 100, "step": 1}
+                "default": 25,
+                "slider": {
+                    "min": 0,
+                    "max": 100,
+                    "step": 1
+                }
             },
-            "normal": {
-                "description": "中吉 (56~70分) 权重",
+            "84": {
+                "description": "★★★★★★☆ 中吉（84）",
                 "type": "int",
-                "default": 40,
-                "slider": {"min": 0, "max": 100, "step": 1}
+                "default": 45,
+                "slider": {
+                    "min": 0,
+                    "max": 100,
+                    "step": 1
+                }
             },
-            "bad": {
-                "description": "凶运 (<42分) 权重",
+            "70": {
+                "description": "★★★★★☆☆ 吉（70）",
                 "type": "int",
-                "default": 20,
-                "slider": {"min": 0, "max": 100, "step": 1}
-            }
-        }
-    },
-    "holiday_rates": {
-        "description": "节假日运势爆率权重",
-        "type": "object",
-        "hint": "设置节假日时的运势抽取概率权重。",
-        "items": {
-            "good": {
-                "description": "大吉 (>=84分) 权重",
-                "type": "int",
-                "default": 85,
-                "slider": {"min": 0, "max": 100, "step": 1}
+                "default": 35,
+                "slider": {
+                    "min": 0,
+                    "max": 100,
+                    "step": 1
+                }
             },
-            "normal": {
-                "description": "中吉 (56~70分) 权重",
+            "56": {
+                "description": "★★★★☆☆☆ 吉带凶（56）",
+                "type": "int",
+                "default": 30,
+                "slider": {
+                    "min": 0,
+                    "max": 100,
+                    "step": 1
+                }
+            },
+            "42": {
+                "description": "★★★☆☆☆☆ 吉凶参半（42）",
                 "type": "int",
                 "default": 15,
-                "slider": {"min": 0, "max": 100, "step": 1}
+                "slider": {
+                    "min": 0,
+                    "max": 100,
+                    "step": 1
+                }
             },
-            "bad": {
-                "description": "凶 (<42分) 权重",
+            "28": {
+                "description": "★★☆☆☆☆☆ 凶带吉（28）",
                 "type": "int",
-                "default": 0,
-                "slider": {"min": 0, "max": 100, "step": 1}
+                "default": 12,
+                "slider": {
+                    "min": 0,
+                    "max": 100,
+                    "step": 1
+                }
+            },
+            "14": {
+                "description": "★☆☆☆☆☆☆ 小凶（14）",
+                "type": "int",
+                "default": 10,
+                "slider": {
+                    "min": 0,
+                    "max": 100,
+                    "step": 1
+                }
+            },
+            "0": {
+                "description": "☆☆☆☆☆☆☆ 凶（0）",
+                "type": "int",
+                "default": 5,
+                "slider": {
+                    "min": 0,
+                    "max": 100,
+                    "step": 1
+                }
             }
         }
-    }    
-
+    },
+    "HTML_setting": {
+        "description": "面板调节（颜色与虚线框）",
+        "type": "object",
+        "hint": "颜色请填 rgba(r,g,b,a)，例如 rgba(0,0,0,0.5)；也支持 #rrggbb。",
+        "items": {
+            "MaskColor": {
+                "description": "蒙版颜色",
+                "type": "string",
+                "hint": "底部半透明面板的颜色，格式 rgba(r,g,b,a)，a 为 0-1 的透明度。",
+                "default": "rgba(255, 255, 255, 0.66)"
+            },
+            "Maskblurs": {
+                "description": "蒙版模糊半径",
+                "type": "int",
+                "default": 10,
+                "slider": {
+                    "min": 0,
+                    "max": 100,
+                    "step": 1
+                }
+            },
+            "HoroscopeTextColor": {
+                "description": "运势文字颜色",
+                "type": "string",
+                "hint": "「大吉」「中吉」这类总结文字的颜色，格式 rgba(r,g,b,a)。",
+                "default": "rgba(68, 66, 73, 1)"
+            },
+            "luckyStarGradientColor": {
+                "description": "运势星星使用彩色渐变",
+                "type": "bool",
+                "default": true
+            },
+            "HoroscopeDescriptionTextColor": {
+                "description": "运势说明文字颜色",
+                "type": "string",
+                "hint": "正文与页脚文字的颜色，格式 rgba(r,g,b,a)。",
+                "default": "rgba(52, 49, 55, 1)"
+            },
+            "DashedboxThickn": {
+                "description": "虚线框的粗细",
+                "type": "int",
+                "default": 5,
+                "slider": {
+                    "min": 0,
+                    "max": 20,
+                    "step": 1
+                }
+            },
+            "Dashedboxcolor": {
+                "description": "虚线框的颜色",
+                "type": "string",
+                "hint": "格式 rgba(r,g,b,a)。",
+                "default": "rgba(255, 255, 255, 0.5)"
+            }
+        }
+    },
+    "layout": {
+        "description": "布局调节（头像/日期/运势文字/运势星星）",
+        "type": "object",
+        "hint": "位置偏移为相对默认版式的像素增量，可填负数。头像选择靠左/靠右时，面板会自动变矮，头像与文字块垂直居中对齐。",
+        "items": {
+            "avatar_show": {
+                "description": "显示头像",
+                "type": "bool",
+                "default": true
+            },
+            "avatar_position": {
+                "description": "头像位置",
+                "type": "string",
+                "default": "top",
+                "options": [
+                    "top",
+                    "left",
+                    "right"
+                ],
+                "labels": [
+                    "靠上（居中）",
+                    "靠左",
+                    "靠右"
+                ]
+            },
+            "avatar_size": {
+                "description": "头像尺寸（像素）",
+                "type": "int",
+                "default": 74,
+                "slider": {
+                    "min": 32,
+                    "max": 240,
+                    "step": 1
+                }
+            },
+            "avatar_offset_x": {
+                "description": "头像水平偏移",
+                "type": "int",
+                "default": 0,
+                "slider": {
+                    "min": -400,
+                    "max": 400,
+                    "step": 1
+                }
+            },
+            "avatar_offset_y": {
+                "description": "头像垂直偏移",
+                "type": "int",
+                "default": 0,
+                "slider": {
+                    "min": -400,
+                    "max": 400,
+                    "step": 1
+                }
+            },
+            "date_size": {
+                "description": "日期字号",
+                "type": "int",
+                "default": 22,
+                "slider": {
+                    "min": 8,
+                    "max": 80,
+                    "step": 1
+                }
+            },
+            "date_offset_x": {
+                "description": "日期水平偏移",
+                "type": "int",
+                "default": 0,
+                "slider": {
+                    "min": -400,
+                    "max": 400,
+                    "step": 1
+                }
+            },
+            "date_offset_y": {
+                "description": "日期垂直偏移",
+                "type": "int",
+                "default": 0,
+                "slider": {
+                    "min": -200,
+                    "max": 200,
+                    "step": 1
+                }
+            },
+            "summary_size": {
+                "description": "运势文字字号",
+                "type": "int",
+                "default": 38,
+                "slider": {
+                    "min": 8,
+                    "max": 120,
+                    "step": 1
+                }
+            },
+            "summary_offset_x": {
+                "description": "运势文字水平偏移",
+                "type": "int",
+                "default": 0,
+                "slider": {
+                    "min": -400,
+                    "max": 400,
+                    "step": 1
+                }
+            },
+            "summary_offset_y": {
+                "description": "运势文字垂直偏移",
+                "type": "int",
+                "default": 0,
+                "slider": {
+                    "min": -200,
+                    "max": 200,
+                    "step": 1
+                }
+            },
+            "star_size": {
+                "description": "运势星星字号",
+                "type": "int",
+                "default": 34,
+                "slider": {
+                    "min": 8,
+                    "max": 100,
+                    "step": 1
+                }
+            },
+            "star_offset_x": {
+                "description": "运势星星水平偏移",
+                "type": "int",
+                "default": 0,
+                "slider": {
+                    "min": -400,
+                    "max": 400,
+                    "step": 1
+                }
+            },
+            "star_offset_y": {
+                "description": "运势星星垂直偏移",
+                "type": "int",
+                "default": 0,
+                "slider": {
+                    "min": -200,
+                    "max": 200,
+                    "step": 1
+                }
+            }
+        }
+    },
+    "jrys_keyword_enabled": {
+        "description": "启用关键词触发",
+        "type": "bool",
+        "hint": "开启后，直接发送「今日运势」「运势」「jrys」等关键词即可触发（不需要加 / 前缀）。关闭则只有指令形式生效。",
+        "default": true
+    },
+    "at_sender": {
+        "description": "回复时 @ 发送者",
+        "type": "bool",
+        "hint": "开启后，在群聊里发运势图时会同时 @ 触发指令的群友（私聊不受影响）。",
+        "default": true
+    },
+    "avatar_cache_expiration": {
+        "description": "头像缓存过期时间（秒）",
+        "type": "int",
+        "hint": "默认 86400 秒（24 小时）。",
+        "default": 86400
+    }
 }
