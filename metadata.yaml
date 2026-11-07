@@ -1,4 +1,5 @@
-name: 今日运势抽签
+name: astrbot_plugin_jrysplus
+display_name: 今日运势抽签
 desc: 今日运势卡片，支持按运势分数匹配运势图片，图片可自行在/backgroundFolder中替换
 help: 
   【基础指令】
