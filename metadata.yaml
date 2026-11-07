@@ -1,7 +1,5 @@
 name: astrbot_plugin_jrysplus
-desc: 
-  今日运势卡片，支持按运势分数匹配运势图片，图片可自行在/backgroundFolder中替换
-  基于koishi-plugin-jrys-prpr修改
+desc: 今日运势卡片，支持按运势分数匹配运势图片，图片可自行在/backgroundFolder中替换
 help: 
   【基础指令】
   - /jrys ：查询今日运势（「今日运势」「运势」等关键词也可触发）
