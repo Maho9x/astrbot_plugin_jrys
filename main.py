@@ -114,6 +114,7 @@ class JrysPlugin(Star):
         self._session: aiohttp.ClientSession | None = None
         self._counts_lock = asyncio.Lock()
         self._runtime = _runtime_dir()
+        self._appid = ""
         self._avatar_dir = self._runtime / "avatars"
         self._card_dir = self._runtime / "cards"
         self._counts_path = self._runtime / "daily_counts.json"
@@ -200,17 +201,41 @@ class JrysPlugin(Star):
             )
         return self._session
 
+    def _qq_appid(self) -> str:
+        """取 QQ 官方 bot 的 appid（用于 openid 头像接口）。"""
+        if self._appid:
+            return self._appid
+        try:
+            conf = self.context.get_config() or {}
+            for platform in conf.get("platform", []) or []:
+                if platform.get("type") == "qq_official" and platform.get("appid"):
+                    self._appid = str(platform["appid"])
+                    break
+        except Exception as exc:  # noqa: BLE001
+            logger.debug(f"读取 appid 失败: {exc}")
+        return self._appid
+
     async def _fetch_avatar(self, user_id: str) -> Image.Image | None:
-        if not user_id or not str(user_id).isdigit():
+        uid = str(user_id or "").strip()
+        if not uid:
             return None
-        path = self._avatar_dir / f"{user_id}.jpg"
+        # 数字 QQ 号走 qlogo；QQ 官方 bot 的 openid 走 qqapp 接口
+        if uid.isdigit():
+            url = f"http://q.qlogo.cn/g?b=qq&nk={uid}&s=640"
+        else:
+            appid = self._qq_appid()
+            if not appid:
+                logger.debug(f"无法取得 appid，跳过头像({uid})")
+                return None
+            url = f"https://q.qlogo.cn/qqapp/{appid}/{uid}/640"
+        safe_name = "".join(ch for ch in uid if ch.isalnum() or ch in "-_")[:64] or "user"
+        path = self._avatar_dir / f"{safe_name}.jpg"
         expire = _as_int(self._cfg("avatar_cache_expiration"), 86400)
         try:
             if path.exists() and time.time() - path.stat().st_mtime < expire:
                 data = path.read_bytes()
             else:
                 session = await self._http()
-                url = f"http://q.qlogo.cn/g?b=qq&nk={user_id}&s=640"
                 async with session.get(url) as resp:
                     if resp.status != 200:
                         raise RuntimeError(f"HTTP {resp.status}")
