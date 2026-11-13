@@ -1,4 +1,4 @@
-name: astrbot_plugin_jrysprpr
+name: astrbot_plugin_jrysplus
 desc: 今日运势卡片，版式/抽签算法/背景图匹配与 koishi-plugin-jrys-prpr 保持一致。
 help: 
   【基础指令】
@@ -6,7 +6,7 @@ help:
   - /原图 ：获取今日运势对应的背景图
   - 指令后加 -s ：以「背景图 + 文字」的图文形式输出
 version: v2.3.0
-author: ominus
+author: Maho9x
 repo: https://github.com/NINIYOYYO/astrbot_plugin_jrys
 
 support_platforms:
