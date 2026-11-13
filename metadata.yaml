@@ -11,3 +11,4 @@ repo: https://github.com/NINIYOYYO/astrbot_plugin_jrys
 
 support_platforms:
   - aiocqhttp
+  - qq_official
