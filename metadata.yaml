@@ -7,7 +7,7 @@ help:
   - 指令后加 -s ：以「背景图 + 文字」的图文形式输出
 version: v2.3.0
 author: Maho9x
-repo: https://github.com/NINIYOYYO/astrbot_plugin_jrys
+repo: https://github.com/Maho9x/astrbot_plugin_jrys
 
 support_platforms:
   - aiocqhttp
