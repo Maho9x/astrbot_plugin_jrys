@@ -325,6 +325,12 @@
         "hint": "开启后，在群聊里发运势图时会同时 @ 触发指令的群友（私聊不受影响）。",
         "default": true
     },
+    "qq_official_optimize": {
+        "description": "对 QQ 官方 bot 优化",
+        "type": "bool",
+        "hint": "QQ 官方机器人 API 不支持把「@群员 + 图片 + 文字」放在同一条消息里，开启后会把 @群员 与图文拆成两条发送：先用 markdown 消息单独 @ 对方（这样 QQ 才会渲染成真正的 @），再发运势图片。\n仅在 QQ 官方机器人平台生效，其他平台不受影响；关闭则维持原来的单条消息。",
+        "default": false
+    },
     "avatar_cache_expiration": {
         "description": "头像缓存过期时间（秒）",
         "type": "int",

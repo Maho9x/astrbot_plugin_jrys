@@ -19,8 +19,9 @@ from PIL import Image
 
 from astrbot.api import AstrBotConfig, logger
 from astrbot.api.event import AstrMessageEvent, filter
-from astrbot.api.message_components import At, Image as AtImage
+from astrbot.api.message_components import At, Image as AtImage, Plain
 from astrbot.api.star import Context, Star, register
+from astrbot.core.message.message_event_result import MessageChain
 
 from .fortune import (
     LUCK_TO_IMAGE,
@@ -36,6 +37,9 @@ from .renderer import AVATAR_SIZE, DATE_SIZE, SUMMARY_SIZE, STAR_SIZE, CardRende
 PLUGIN_DIR = Path(__file__).resolve().parent
 DEFAULT_FONT = "JINGNANBOBOHEI-BOLD-2.TTF"
 DEFAULT_HINT = "正在分析你的运势哦~请稍等~~"
+
+# 零宽空格：respond 阶段会丢弃「strip() 后为空」的 Plain 段，用它保住 @ 那条消息
+ZERO_WIDTH = "\u200b"
 
 
 def _as_bool(value, default: bool = False) -> bool:
@@ -55,6 +59,35 @@ def _as_int(value, default: int) -> int:
         return default
 
 
+def _is_qq_official(event) -> bool:
+    """是否运行在 QQ 官方机器人适配器上。
+
+    注意：get_platform_id() 返回的是平台配置里的 id（用户可自定义，如「QQ官方bot」），
+    get_platform_name() 才是适配器名（qq_official）。所以这里三处都看，任一命中即可。
+    """
+    candidates: list[str] = []
+    for attr in ("get_platform_name", "get_platform_id"):
+        try:
+            getter = getattr(event, attr, None)
+            if callable(getter):
+                candidates.append(str(getter() or ""))
+        except Exception:  # noqa: BLE001
+            pass
+
+    meta = getattr(event, "platform_meta", None)
+    if meta is not None:
+        for attr in ("name", "description"):
+            try:
+                candidates.append(str(getattr(meta, attr, "") or ""))
+            except Exception:  # noqa: BLE001
+                pass
+
+    for value in candidates:
+        low = value.strip().lower()
+        if "qq_official" in low or "qqofficial" in low or "机器人官方" in value:
+            return True
+    return False
+
 def _runtime_dir() -> Path:
     """运行时数据目录（头像缓存、卡片、每日次数）。"""
     try:
@@ -71,7 +104,7 @@ def _runtime_dir() -> Path:
     return base
 
 
-@register("astrbot_plugin_jrysprpr", "ominus", "今日运势卡片（Koishi 版式复刻）", "2.2.0")
+@register("astrbot_plugin_jrysprpr", "ominus", "今日运势卡片（Koishi 版式复刻）", "2.3.0")
 class JrysPlugin(Star):
     def __init__(self, context: Context, config: AstrBotConfig):
         super().__init__(context)
@@ -267,13 +300,32 @@ class JrysPlugin(Star):
         return out_path, entry, luck
 
     # ---------------- 消息构造 ----------------
-    def _reply_image(self, event: AstrMessageEvent, image_path: str):
-        """群聊里发图时顺带 @ 发送者。"""
+    async def _reply(self, event: AstrMessageEvent, image_path: str):
+        """群聊里发图时顺带 @ 发送者。
+
+        QQ 官方 bot 的适配器在消息带图片时会改用 msg_type=7（纯文本 content），
+        At 序列化出的 `<qqbot-at-user id="..." />` 不会被解析、会原样显示；
+        而纯 At 的消息链又会被 respond 阶段跳过。所以开启 `qq_official_optimize` 后，
+        这里用 event.send() 直接发两条：先一条 markdown（msg_type=2）单独 @ 对方，再发图片。
+        """
         user_id = str(event.get_sender_id() or "")
         in_group = bool(event.get_group_id())
-        if in_group and user_id and _as_bool(self._cfg("at_sender", True), True):
-            return event.chain_result([At(qq=user_id), AtImage.fromFileSystem(str(image_path))])
-        return event.image_result(str(image_path))
+        want_at = bool(in_group and user_id and _as_bool(self._cfg("at_sender", True), True))
+
+        if want_at and _is_qq_official(event) and _as_bool(self._cfg("qq_official_optimize", False)):
+            try:
+                await event.send(MessageChain(chain=[At(qq=user_id), Plain(ZERO_WIDTH)]).use_markdown(True))
+                await event.send(MessageChain(chain=[AtImage.fromFileSystem(str(image_path))]))
+                logger.info("QQ 官方 bot 优化：@ 与图片拆分为两条发送")
+                return
+            except Exception as exc:  # noqa: BLE001
+                logger.warning(f"QQ 官方 bot 拆条发送失败，回退为单条：{exc}")
+
+        if want_at:
+            yield event.chain_result([At(qq=user_id), AtImage.fromFileSystem(str(image_path))])
+            return
+
+        yield event.image_result(str(image_path))
 
     # ---------------- 事件处理 ----------------
     @filter.event_message_type(filter.EventMessageType.ALL)
@@ -297,7 +349,8 @@ class JrysPlugin(Star):
             try:
                 luck = draw_luck(self._weights(), user_id)
                 yield event.plain_result(f"今日运势对应的背景图（{LUCK_TO_IMAGE.get(luck, '吉')}）")
-                yield self._reply_image(event, str(self._background_path(luck)))
+                async for result in self._reply(event, str(self._background_path(luck))):
+                    yield result
             except Exception as exc:  # noqa: BLE001
                 logger.error(f"发送原图失败: {exc}")
                 yield event.plain_result("获取原图失败了，稍后再试试～")
@@ -326,7 +379,8 @@ class JrysPlugin(Star):
             if split:
                 luck = draw_luck(self._weights(), user_id)
                 entry = pick_entry(self._jrys(), luck, user_id)
-                yield self._reply_image(event, str(self._background_path(luck)))
+                async for result in self._reply(event, str(self._background_path(luck))):
+                    yield result
                 yield event.plain_result(
                     f"{entry.get('fortuneSummary', '')}\n{entry.get('luckyStar', '')}\n\n"
                     f"{entry.get('signText', '')}\n\n{entry.get('unsignText', '')}"
@@ -334,7 +388,8 @@ class JrysPlugin(Star):
                 return
 
             out_path, _entry, _luck = await self._build(user_id)
-            yield self._reply_image(event, str(out_path))
+            async for result in self._reply(event, str(out_path)):
+                yield result
         except Exception as exc:  # noqa: BLE001
             logger.error(f"生成今日运势失败: {exc}", exc_info=True)
             yield event.plain_result(f"渲染失败了：{exc}")

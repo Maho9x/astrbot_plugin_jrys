@@ -10,4 +10,4 @@ jrys 今日运势 运势 等关键词也可以触发， 可在插件配置里面
 
 ## 效果图展示
 
-<img width="800" height="800" alt="d15d7728b9886d8977bd270ba642643a" src="https://github.com/user-attachments/assets/c8a5b66b-efb0-484c-bbee-54208bf314d2" />
+![效果图](./docs/preview.png)
