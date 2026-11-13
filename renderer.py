@@ -153,12 +153,15 @@ class Layout:
     star_offset_x: int = 0
     star_offset_y: int = 0
 
+    body_size: int = BODY_SIZE
+
     def __post_init__(self) -> None:
         self.avatar_position = normalize_position(self.avatar_position)
         self.avatar_size = max(16, int(self.avatar_size or AVATAR_SIZE))
         self.date_size = max(8, int(self.date_size or DATE_SIZE))
         self.summary_size = max(8, int(self.summary_size or SUMMARY_SIZE))
         self.star_size = max(8, int(self.star_size or STAR_SIZE))
+        self.body_size = max(8, int(self.body_size or BODY_SIZE))
         self.avatar_show = bool(self.avatar_show)
 
 
@@ -390,10 +393,10 @@ class CardRenderer:
         content_w = CANVAS - PAD_SIDE * 2
         box_text_w = content_w - BODY_PAD_H * 2 - self.dash_width * 2
 
-        sign_lines = self.wrap(sign_text, BODY_SIZE, box_text_w)
-        unsign_lines = self.wrap(unsign_text, BODY_SIZE, box_text_w)
+        sign_lines = self.wrap(sign_text, lay.body_size, box_text_w)
+        unsign_lines = self.wrap(unsign_text, lay.body_size, box_text_w)
 
-        lh_body = BODY_SIZE * BODY_LH
+        lh_body = lay.body_size * BODY_LH
         h_date = self.line_height(lay.date_size)
         h_sum = self.line_height(lay.summary_size)
         h_star = self.line_height(lay.star_size)
@@ -501,7 +504,7 @@ class CardRenderer:
         self._draw_justified(
             canvas,
             sign_lines,
-            BODY_SIZE,
+            lay.body_size,
             PAD_SIDE + self.dash_width + BODY_PAD_H,
             y + self.dash_width + BODY_PAD_V,
             box_text_w,
@@ -519,7 +522,7 @@ class CardRenderer:
         self._draw_justified(
             canvas,
             unsign_lines,
-            BODY_SIZE,
+            lay.body_size,
             PAD_SIDE + self.dash_width + BODY_PAD_H,
             y + self.dash_width + BODY_PAD_V,
             box_text_w,

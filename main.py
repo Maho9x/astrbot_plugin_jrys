@@ -32,7 +32,8 @@ from .fortune import (
     normalize_weights,
     pick_entry,
 )
-from .renderer import AVATAR_SIZE, DATE_SIZE, SUMMARY_SIZE, STAR_SIZE, CardRenderer, Layout
+from .renderer import (BODY_SIZE, AVATAR_SIZE, DATE_SIZE, SUMMARY_SIZE,
+                       STAR_SIZE, CardRenderer, Layout)
 
 PLUGIN_DIR = Path(__file__).resolve().parent
 DEFAULT_FONT = "JINGNANBOBOHEI-BOLD-2.TTF"
@@ -159,6 +160,7 @@ class JrysPlugin(Star):
             star_size=_as_int(cfg.get("star_size"), STAR_SIZE),
             star_offset_x=_as_int(cfg.get("star_offset_x"), 0),
             star_offset_y=_as_int(cfg.get("star_offset_y"), 0),
+            body_size=_as_int(cfg.get("body_size"), BODY_SIZE),
         )
 
     def _renderer(self) -> CardRenderer:

@@ -5,7 +5,7 @@ help:
   - /jrys ：查询今日运势（「今日运势」「运势」等关键词也可触发）
   - /原图 ：获取今日运势对应的背景图
   - 指令后加 -s ：以「背景图 + 文字」的图文形式输出
-version: v2.3.1
+version: v2.3.2
 author: Maho9x
 repo: https://github.com/Maho9x/astrbot_plugin_jrys
 

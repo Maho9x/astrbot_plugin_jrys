@@ -281,6 +281,16 @@
                     "step": 1
                 }
             },
+            "body_size": {
+                "description": "运势说明文字字号",
+                "type": "int",
+                "default": 19,
+                "slider": {
+                    "min": 8,
+                    "max": 60,
+                    "step": 1
+                }
+            },
             "star_size": {
                 "description": "运势星星字号",
                 "type": "int",
